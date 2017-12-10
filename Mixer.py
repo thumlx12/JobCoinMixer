@@ -21,10 +21,10 @@ class Mixer:
 
     def __init__(self):
         self.THEHOUSE = hashlib.sha224(str(uuid.uuid1())).hexdigest()
-        self.trans_content_len = self.getTransLogLen()
+        self.trans_content_len = self.getTransLogContentLen()
         self.trans_log_num = len(json.loads(self.getTransLog()))
 
-    def getTransLogLen(self):
+    def getTransLogContentLen(self):
         request = urllib2.Request(self.TRANS_URL)
         request.get_method = lambda: 'HEAD'
         response = urllib2.urlopen(request)
@@ -59,9 +59,9 @@ class Mixer:
 
     def monitorTrans(self):
         while True:
-            curTransLogLen = self.getTransLogLen()
-            if curTransLogLen != self.trans_content_len:
-                self.trans_content_len = curTransLogLen
+            curTransLogContentLen = self.getTransLogContentLen()
+            if curTransLogContentLen != self.trans_content_len:
+                self.trans_content_len = curTransLogContentLen
                 curTransLog = json.loads(self.getTransLog())
                 for i in range(self.trans_log_num, len(curTransLog)):
                     if self.depositAddrSet.__contains__(curTransLog[i]['toAddress']):
@@ -73,16 +73,17 @@ class Mixer:
                         time.sleep(1)
                         self.sendJobCoin(oneDepositAddr, self.THEHOUSE, amount)
                 self.trans_log_num = len(curTransLog)
-            time.sleep(10)
+            time.sleep(5)
 
-    def doleOutCoin(self):
+    def doleoutCoin(self):
         while True:
             for DA in self.deposit2withdraw.keys():
                 if self.depoAddrFund.has_key(DA):
                     if self.depoAddrFund[DA] > 0.0:
-                        doleAmount = self.depoAddrFund[DA] if self.depoAddrFund[DA] < 0.1 else 0.3 * self.depoAddrFund[
-                            DA]
+                        doleAmount = self.depoAddrFund[DA] \
+                            if self.depoAddrFund[DA] < 0.1 \
+                            else random.uniform(0.2, 0.5) * self.depoAddrFund[DA]
                         self.depoAddrFund[DA] -= doleAmount
                         self.sendJobCoin(self.THEHOUSE, self.deposit2withdraw[DA], doleAmount)
                         print('Dole out %s JobCoin to %s successfully.' % (doleAmount, self.deposit2withdraw[DA]))
-            time.sleep(10)
+            time.sleep(5)

@@ -19,5 +19,5 @@ if __name__ == "__main__":
 
     t1 = threading.Thread(target=myMixer.monitorTrans, args=())
     t1.start()
-    t2 = threading.Thread(target=myMixer.doleOutCoin, args=())
+    t2 = threading.Thread(target=myMixer.doleoutCoin, args=())
     t2.start()
