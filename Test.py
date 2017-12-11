@@ -2,10 +2,10 @@ from Mixer import *
 import threading
 
 if __name__ == "__main__":
-    userAddressList1 = ['BobAdd1', 'BobAdd2', 'BobAdd3', 'BobAdd4', 'BobAdd5']
+    userAddressList1 = ['BobAddr1', 'BobAddr2', 'BobAddr3', 'BobAddr4', 'BobAddr5']
     withdrawAddr1 = 'Bob\'s_secret_vault'
 
-    userAddressList2 = ['CaroAdd1', 'CaroAdd2', 'Caroadd3', 'CaroAdd4']
+    userAddressList2 = ['CaroAddr1', 'CaroAddr2', 'Caroaddr3', 'CaroAddr4','CaroAddr5']
     withdrawAddr2 = 'Caro\'s_secret_cache'
 
     myMixer = Mixer()
@@ -16,6 +16,9 @@ if __name__ == "__main__":
 
     deposit_addr2 = myMixer.genDepositAddress(withdrawAddr2, userAddressList2)
     print('Caro\'s Deposit Address is:', deposit_addr2)
+
+    myMixer.sendJobCoin('Richman', deposit_addr1, 5.32)
+    myMixer.sendJobCoin('Richman', deposit_addr2, 10.22)
 
     t1 = threading.Thread(target=myMixer.monitorTrans, args=())
     t1.start()
