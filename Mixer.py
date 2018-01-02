@@ -12,9 +12,8 @@ class Mixer:
     THEHOUSE = ""
     TRANS_URL = 'http://jobcoin.gemini.com/cabdriver/api/transactions'
 
-    depositAddrSet = Set() #store all deposit addresses
-    deposit2withdraw = {} #key: deposit address, value: withdraw address that is linked to the deposit address
-    depoAddrFund = {} #key: deposit address, value: how much JobCoin left in the address
+    deposit2withdraw = {}  # key: deposit address, value: withdraw address that is linked to the deposit address
+    depoAddrFund = {}  # key: deposit address, value: how much JobCoin left in the address
 
     trans_content_len = 0
     trans_log_num = []
@@ -63,7 +62,6 @@ class Mixer:
         adrListStr = ','.join(addressList)
         depositAddress = hashlib.sha224(adrListStr + salt).hexdigest()
         self.deposit2withdraw[depositAddress] = withdrawAddress
-        self.depositAddrSet.add(depositAddress)
         return depositAddress
 
     def sendJobCoin(self, fromAddr, toAddr, amount):
@@ -73,7 +71,9 @@ class Mixer:
         :param amount: the amount of JobCoin
         :return: the status code
         '''
-        trans = {'fromAddress': fromAddr, 'toAddress': toAddr, 'amount': str(amount)}
+        trans = {'toAddress': toAddr, 'amount': str(amount)}
+        if len(fromAddr) > 0:
+            trans['fromAddress'] = fromAddr
         data = urllib.urlencode(trans)
         req = urllib2.Request(self.TRANS_URL, data)
         response = urllib2.urlopen(req)
@@ -97,7 +97,7 @@ class Mixer:
                 self.trans_content_len = curTransLogContentLen
                 curTransLog = json.loads(self.getTransLog())
                 for i in range(self.trans_log_num, len(curTransLog)):
-                    if self.depositAddrSet.__contains__(curTransLog[i]['toAddress']):
+                    if self.deposit2withdraw.keys().__contains__(curTransLog[i]['toAddress']):
                         amount = curTransLog[i]['amount']
                         oneDepositAddr = curTransLog[i]['toAddress']
                         if not self.depoAddrFund.has_key(oneDepositAddr):
